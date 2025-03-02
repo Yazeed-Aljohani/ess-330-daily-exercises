@@ -1,3 +1,8 @@
+# Name: Yazeed Aljohani
+# Date: 2025-03-01
+# Purpose: Create a faceted plot of cumulative COVID-19 cases & deaths by USA region and additional plots
+
+
 library(tidyverse)
 
 # Load COVID-19 dataset

@@ -1,0 +1,135 @@
+---
+title: "Day-08.09 - ESS 330 Daily Exercises"
+author: "Yazeed Aljohani"
+date: "`r Sys.Date()`"
+format: html
+editor: visual
+---
+
+```{r}
+
+library(visdat)
+library(broom)
+library(ggplot2)
+```
+
+# **1.. Loading and Exploring the Dataset**
+
+```{r}
+# Loading the airquality dataset
+data("airquality")
+
+```
+
+```{r}
+# Using help function to explore the dataset
+?airquality
+
+```
+
+# 2.Checking for Missing Values and Cleaning the Data
+
+```{r}
+# Visualizing missing values
+vis_dat(airquality)
+```
+
+```{r}
+# Removing missing values
+airquality_cleaned <- na.omit(airquality)
+
+```
+
+# 3.Fitting a Linear Model to Predict Ozone from Temperature
+
+```{r}
+# Fitting a linear model to predict Ozone from Temp
+model <- lm(Ozone ~ Temp, data = airquality_cleaned)
+```
+
+# 4.**Viewing and Interpreting the Model Summary**
+
+```{r}
+# Viewing model summary
+summary(model)
+```
+
+-   **R² = 0.488** means that **48.8% of the variation in Ozone is explained by Temp**.
+
+-   **Adjusted R² (0.4833)** accounts for the sample size and number of predictors.
+
+### **Assessing Model Validity**
+
+1.  **Significance of Temp**:
+
+    -   The **t-value (10.192)** is large.
+
+    -   The **p-value (\<2e-16)** confirms that Temp is a strong predictor.
+
+2.  **Residual standard error: 23.92 on 109 degrees of freedom:**
+
+-   This indicates that our predictions have an average error of **±23.92 Ozone units**.
+
+-   Large residuals suggest that additional factors (e.g., Wind, Solar.R) might improve predictions.
+
+**F-statistic (103.9, p \< 2.2e-16)**:
+
+-   The model as a whole is **statistically significant**.
+
+-   This means that Temp is not a random predictor but has a real effect on Ozone.
+
+### **4. Explain R-squared**
+
+R² measures how well the predictor (Temp) explains the variability in Ozone.
+
+**Interpretation**:
+
+> **"48.8% of the variation in Ozone levels can be explained by Temperature."**
+
+-   The remaining **51.2%** is due to **other unknown factors**.
+
+# 5. Predicting Ozone Using the Cleaned Data
+
+```{r}
+# Predictinf Ozone using the cleaned data
+predictions <- augment(model, newdata = airquality_cleaned)
+```
+
+```{r}
+# Ensuring column names match for correlation calculation
+colnames(predictions)[colnames(predictions) == ".fitted"] <- "Predicted_Ozone"
+```
+
+# 6. Plotting Actual vs. Predicted Ozone
+
+```{r}
+# Ploting actual vs predicted Ozone
+ggplot(predictions, aes(x = Ozone, y = Predicted_Ozone)) +
+  geom_point(alpha = 0.7) +
+  geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
+  labs(
+    title = "Actual vs Predicted Ozone",
+    x = "Actual Ozone",
+    y = "Predicted Ozone",
+    subtitle = paste("Correlation:", round(cor(predictions$Ozone, predictions$Predicted_Ozone, use = "complete.obs"), 2))
+  ) +
+  theme_minimal()
+```
+
+#### **Explanation of the Plot**
+
+1.  **Scatter Plot**:
+
+    -   Each point represents an observation.
+
+    -   If the model were perfect, all points would lie **on the red line**.
+
+2.  **Red 1:1 Line (`geom_abline`)**:
+
+    -   Represents where **actual = predicted**.
+
+    -   The closer the points are to this line, the **better the model's predictions**.
+
+3.  **Correlation in Subtitle**:
+
+    -   Displays `cor(Ozone, Predicted_Ozone)`, indicating how well predictions align with actual values.
